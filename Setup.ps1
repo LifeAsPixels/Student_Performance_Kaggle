@@ -1,0 +1,1 @@
+pip install pandas kagglehub rich matplotlib seaborn
