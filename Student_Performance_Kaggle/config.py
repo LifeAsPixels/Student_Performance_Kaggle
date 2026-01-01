@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 import inspect
 import pandas as pd
+import rich
 from rich.console import Console
 from rich.table import Table
 from rich.progress import track
@@ -13,9 +14,12 @@ class config:
     """
     Use the config class to download the data and handle its IO.
     """
-    console = Console()
     def __init__(self):
+        # initialize the Rich console for fancy CLI outputs
+        self.console = Console()
+
         self.df = None
+        # define all the paths and filenames used for the data and reports
         self.data_path_kaggle = 'kundanbedmutha/student-performance-dataset'
         self.data_path_original = Path(r'~\.cache\kagglehub\datasets\kundanbedmutha\student-performance-dataset\versions\1\Student_Performance.csv').expanduser()
         self.data_path_waste = Path(r'~\.cache\kagglehub').expanduser()
@@ -23,14 +27,15 @@ class config:
         self.data_path_name = "Student_Performance.csv"
         self.data_path_absolute = Path(os.path.join(self.data_path_parent, self.data_path_name))
         self.data_path_url = 'https://www.kaggle.com/datasets/kundanbedmutha/student-performance-dataset'
-        self.download_data_relative()
-        self.df = pd.read_csv(self.data_path_absolute)
-
         self.report_path_parent = Path(os.path.join(self.caller_script_dir(), Path('report\\')))
         self.viz_path_parent = Path(os.path.join(self.report_path_parent, 'viz\\'))
-        # self.random_state = 42
-        # self.k__max_range = (2, 35280)
-        self.feature_definitions()
+
+        # download the data and load it to memory        
+        self.download_data_relative()
+        self.df = pd.read_csv(self.data_path_absolute)
+        
+        # define columns sets based on their qualities
+        self.feature__label_definitions()
 
     def download_unnecessary(self):
         return self.data_path_absolute.exists()
@@ -46,7 +51,7 @@ class config:
         for frame_info in inspect.stack()[1:]:
             caller_path = Path(frame_info.filename).resolve()
             if caller_path != this_file:
-                return caller_path.parent.parent
+                return caller_path.parent
         return None
 
     def make_dir(self, path):
@@ -72,7 +77,7 @@ class config:
         # load the csv to pandas dataframe
         print('\nPath to data file(s):\n  ', self.data_path_absolute)
     
-    def feature_definitions(self):
+    def feature__label_definitions(self):
         self.data_features_categorical = ['gender',
                                 'school_type',
                                 'parent_education',
