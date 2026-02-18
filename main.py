@@ -1,4 +1,4 @@
-from Student_Performance_Kaggle import *
+from Student_Performance_Kaggle.Student_Performance_Kaggle import *
 
 from pathlib import Path
 import rich
